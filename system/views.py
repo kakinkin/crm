@@ -70,6 +70,7 @@ def send_email(request):
 
         #邮箱截取
 
+
         #用户名
         username=request.POST.get('username')
         #密码
@@ -107,7 +108,7 @@ def send_email(request):
                                   ----------------------------------------------------------------------<br>
                                   如果您是 上海尚学堂CRM 的新用户，或在修改您的注册 Email 时使用了本地址，我们需要对您的地址有效性进行验证以避免垃圾邮件或地址被滥用。<br>
                                   您只需点击下面的链接激活帐号即可：<br>
-                                  <a href="http://www.crm.com/active_accounts/?username={}&code={}&timestamp={}">http://www.crm.com/active_accounts/?username={}&amp;code={}&amp;timestamp={}</a><br/>
+                                  <a href="http://www.justin.com/system/active_accounts/?username={}&code={}&timestamp={}">http://www.justin.com/system/active_accounts/?username={}&amp;code={}&amp;timestamp={}</a><br/>
                                   感谢您的访问，祝您生活愉快！<br>
                                   此致<br>
                                    上海尚学堂 管理团队.
@@ -173,12 +174,12 @@ def active_accounts(reqeuest):
         user.save()
         # 返回提示信息
         return HttpResponse(
-            '<h1>账号激活成功，请到网系统登录&nbasp;&nbsp;<a href="http://www.crm.com/login_register/">上海丽特CRM系统</a></h1>'
+            '<h1>账号激活成功，请到网系统登录&nbasp;&nbsp;<a href="http://www.justin.com/login_register/">上海丽特CRM系统</a></h1>'
 
         )
     except Exception as e:
         if isinstance(e,User.DoesNotExist):
-            return HttpResponse('<h1>该链接已经失效，请重新注册&nbsp;&nbsp;<a href="http://www.crm.com/login_register/">上海丽特CRM系统</a></h1>')
+            return HttpResponse('<h1>该链接已经失效，请重新注册&nbsp;&nbsp;<a href="http://www.justin.com/login_register/">上海丽特CRM系统</a></h1>')
         return HttpResponse('<h1>不好意思，网络出现了波动，激活失败，请重新尝试</h1>')
 
 
