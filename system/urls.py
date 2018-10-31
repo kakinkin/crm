@@ -6,6 +6,7 @@ from . import views
 app_name='system'
 
 urlpatterns=[
+
     #用户返回注册登录的html页面的控制函数
     path('login_register/',views.login_register,name='login_register'),
     #ajax处理是否数据库里用户名唯一
@@ -15,6 +16,9 @@ urlpatterns=[
     #发送邮箱验证码方法
     path('system/send_email/',views.send_email,name='send_email'),
     #处理来自激活码邮件的get请求,并返回给页面信息
-    path('system/active_accounts/',views.active_accounts,name='active_accounts')
+    path('system/active_accounts/',views.active_accounts,name='active_accounts'),
+    #处理登录
+    path('system/login_user/',views.login_user,name='login_user'),
+    path('index/',views.index,name='index')
 
 ]

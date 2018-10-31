@@ -82,7 +82,7 @@ DATABASES = {
         'PASSWORD': '123456',# 数据库密码
         'HOST': '127.0.0.1', # 数据库连接ip
         'PORT': '3306', # 端口
-        'ATOMIC_REQUESTS':True # 全局生效自动提交事务
+        'ATOMIC_REQUESTS': True  # 全局生效自动提交事务
     }
 }
 

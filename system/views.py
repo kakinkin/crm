@@ -1,4 +1,4 @@
-from django.shortcuts import render,HttpResponse
+from django.shortcuts import render, HttpResponse, redirect
 from django.views.decorators.http import require_POST,require_GET
 from .models import User
 from django.http import  JsonResponse
@@ -9,11 +9,13 @@ import smtplib
 import  uuid
 from datetime import  datetime,timedelta
 from hashlib import  md5
+import base64
+
 # Create your views here.
 
 #跳转到登录和注册页面
 def login_register(request):
-    return render(request,'login_register.html')
+    return render(request, 'system/login_register.html')
 
 
 # 验证用户名是否唯一,并返回响应状态码对应的提示信息给前台
@@ -44,7 +46,7 @@ def unique_email(request):
         # 有用户返回页面json
         return JsonResponse({'code':400, 'msg':'邮箱已经存在','user_email':user_email})
     except User.DoesNotExist as e:
-        return JsonResponse({'code':200,'msg':'恭喜你可以使用该邮箱'})
+        return JsonResponse({'code':200,'msg':'可以使用该邮箱'})
 
 
 # -----------------email模块构建邮件发送实体对象--------------
@@ -144,11 +146,11 @@ def send_email(request):
         # ------------------------------发送----------------end--------------
 
         # 返回页面提示信息
-        return JsonResponse({'code': 200, 'msg': '注册成功，请前往邮箱激活帐号'})
+        return JsonResponse({'code': 201, 'msg': '注册成功，请前往邮箱激活帐号'})
 
     except smtplib.SMTPException as e:
     # 返回页面提示信息
-        return JsonResponse({'code': 400, 'msg': '注册失败，请重新注册'})
+        return JsonResponse({'code': 400, 'msg': '注册失败，请重新注册！'})
 
  #其中get内含有键值对的参数包括username,激活码  ，过期的时间戳字符串
 @require_GET
@@ -183,5 +185,84 @@ def active_accounts(reqeuest):
         return HttpResponse('<h1>不好意思，网络出现了波动，激活失败，请重新尝试</h1>')
 
 
+# 登录
+
+@require_POST
+
+def login_user(request):
+    try:
+        #接收前台传来的数据
+        # 账号
+        username=request.POST.get('username')
+        #密码
+        password=request.POST.get('password')
+        #记住密码
+
+        remeber=request.POST.get('remember')
+        print(remeber,type(remeber))
+
+        #5天免登录
+        login_free = request.POST.get('login_free')
+
+        forgot_pwd=request.POST.get('forgot_pwd')
+
+        # 使用md5加密
+        password_md5=md5(password.encode(encoding='utf-8')).hexdigest()
+
+        #查询
+        user=User.objects.get(username=username,password=password_md5)
+
+        # 如果用户存在，存储sesison信息
+
+        request.session['u_s_n']=username
+
+        #如果选选择存储5天的sesison，没选择浏览器关闭session失效
+        if  login_free:
+            ex=(datetime.now()+timedelta(days=6)).timestamp()
+            request.session.set_expiry(ex)
+        else:
+            request.session.set_expiry(0)
+
+
+
+
+        # 返回成功提示信息
+        context={'code':200,'msg':'欢迎回来'}
+
+        # 实现记住密码
+        # 如果用户存在，前台js存储cookie
+        # 存储格式：key -> login_cookie, value -> username&password
+        # 由于功能改造，代码重构
+        if 'true' == remeber:
+           # context['login_cookie'] = base64.b64encode((username + '&' + password).encode(encoding='utf-8')).decode(encoding='utf-8')
+           context['login_user_cookie'] = base64.b64encode(username.encode(encoding='utf-8')).decode(encoding='utf-8')
+           context['login_pwd_cookie'] = base64.b64encode(password.encode(encoding='utf-8')).decode(encoding='utf-8')
+
+        # #实现忘记密码功能
+        # if format_addr:
+        #     return render(request,'forgot.html.html')
+
+        return JsonResponse(context)
+
+
+    except User.DoesNotExist as e:
+        context={'code':400,'msg':'用户名或密码错误'}
+        return JsonResponse(context)
+
+
+
+def index(request):
+        # 判断session中是否有用户信息
+        username=request.session.get('u_s_n')
+
+        if username:
+            return render(request, 'system/index1.html')
+        # 如果不存在，重定向登录页面
+        return redirect('system:login_register',permanent=True)
+
+#修改密码
+@require_POST
+def update_password(request):
+    try:
 
 

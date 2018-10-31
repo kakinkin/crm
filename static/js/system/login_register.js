@@ -1,13 +1,9 @@
 // ----------------------------------注册------------start----------------------
 
 
-document.ready=function(){alert(1);};
-// 点击注册显示注册div，隐藏登录div
 
-alert(2);
-
-
-$('#reg_top').on('click', function () {
+$(function () {
+    $('#reg_top').on('click', function () {
 
     $('#log-in').hide();
     $('#register').show();
@@ -20,8 +16,19 @@ $('#login_top').on('click', function () {
     $('#log-in').show();
 });
 
+});
 
 
+//组织重复数据
+function show_btn() {
+    $('#reg_btn').val('单击注册');
+    $('#reg_btn').removeAttr('disabled');
+};
+
+function stop_btn() {
+    $('#reg_btn').val('重复信息不能注册');
+     $('#reg_btn').prop("disabled", "true");
+};
 
     //非空通用方法,可能有三种情况
     function isEmpty(str) {
@@ -77,16 +84,15 @@ $('#login_top').on('click', function () {
                     if (400 == result.code) {
 
                         $('#reg_span').html(result.msg);
-                        /**if (result.user_name==uname){
-
-                    }*/
+                        if (result.user_name==uname){
+                       stop_btn();
+                    }
                         flag = false;
                     }
                     else if (200 == result.code) {
                         $('#reg_span').html(result.msg);
-                        // $('#reg_btn').val('注册');
-                        //$('#reg_btn').removeAttr("disabled");
 
+                        show_btn();
                         flag = true;
                     }
 
@@ -156,15 +162,16 @@ $('#login_top').on('click', function () {
                     // 如果是400 设置为false返回
                     if (400 == result.code) {
 
-                        /**if (result.user_email==email){
+                        if (result.user_email==email){
+                            stop_btn();
 
-                    } */
+                    }
                         $('#reg_span').html(result.msg);
                         flag = false;
                     }
                     else if (200 == result.code) {
-                        $('#reg_span').html(result.msg);
-
+                       // $('#reg_span').html(result.msg);
+                        show_btn();
 
                         flag = true;
                     }
@@ -276,26 +283,14 @@ $('#login_top').on('click', function () {
         var flag2 = checke_email();
         var flag3 = check_password();
         var flag4 = repeat_password2();
-        if (!flag1) {
-            return;
-        }
-
-        else if (!flag2) {
-            return;
-        }
-
-        else if (!flag3) {
-            return;
-        }
-
-        else if (!flag4) {
-            return;
-        }
-
-        else {
-
+       if ((flag1&&flag2&&flag3&&flag4)){
 
             $('#reg_span').html('');
+            var inputs=$('input');
+               for (var i=0;i<inputs.length;i++){
+                inputs[i].disabled=true;
+           }
+
 
             // 合法的话 发送邮件 激活账号
         // 获取用户名
@@ -318,13 +313,18 @@ $('#login_top').on('click', function () {
             },
             'dataType': 'json',
             'success': function (result) {
+
                 // 如果是400 设置为false返回
                 if (400 == result.code) {
                     $('#reg_span').html(result.msg);
+                    setTimeout("location.reload()",5000);
+
+
                 }
 
                 // 如果是200 正常显示
-                if (200 == result.code) {
+                if (201 == result.code) {
+
                     $('#reg_span').html(result.msg);
                 }
             },
@@ -332,9 +332,144 @@ $('#login_top').on('click', function () {
                 console.log(result);
             }
         });
+       }
+
+        else {
+
+              $('#reg_span').html('无法注册，请逐一检查，确保输入合法信息');
+            return;
+        }
+
+    });
+
+// ----------------------------------登录--------------start--------------------
+// 用户名非空验证
+function login_username() {
+    username=$('#login_username').val().trim();
+    if(isEmpty(username)){
+           $('#login_span').html('请输入用户名');
+           return false;
+    }
+
+    $('#login_span').html('');
+    return true;
+
+}
+
+$('#login_username').on('blur',login_username);
+
+function login_password() {
+    password=$('#login_password').val().trim();
+    if (isEmpty(password)){
+           $('#login_span').html('请密码');
+           return false;
+    }
+
+      $('#login_span').html('');
+    return true;
+
+}
+
+$('#login_password').on('blur',login_password);
+
+//登录点击事件
+$('#login_btn').on('click',function () {
+    alert("登录提交");
+    var forgot_pwd=$('#forgot_pwd');
+
+   var forgot_pwd=$('#forgot_pwd').attr('href','http://www.baidu.com/');
+
+    var flag1=login_username();
+    var flag2=login_password();
+    if(!(flag1&&flag2)){
+        return;
+    }
+    else {
+    //如果输入合法
+    var username=$('#login_username').val().trim();
+    var password=$('#login_password').val().trim();
+    var remember=$('#remember').is(':checked');
+    var login_free=$('#login_free').is(':checked');
+    //登录将值传给后台函数处理
+    $.ajax({
+        'type':'POST',
+        'url':'/system/login_user/',
+        'data':{
+            'csrfmiddlewaretoken': $.cookie('csrftoken'),
+            'username': username,
+            'password':password,
+            'remember':remember,
+            'login_free':login_free
+
+
+        },
+        'dataType':'json',
+        'success':function (result) {
+            console.log(result);
+             // 如果是400 显示错误信息
+            if (400 == result.code) {
+                $('#login_span').html(result.msg);
+
+            }
+            if(200==result.code){
+
+                // 如果用户选择了记住密码
+                if (!(undefined == result.login_cookie || null == result.login_cookie)){
+                     // 设置cookuie，有效时间为15天
+                  $.cookie('login_user_cookie',result.login_user_cookie,
+                      {'expires':5,'path':'/','domain':'www.justin.com'});
+                  $.cookie('login_pwd_cookie',result.login_pwd_cookie,
+                      {'expires':5,'path':'/','domain':'www.justin.com'})
+                }
+
+               window.location.href='/index/';
+            }
+
+        },
+        'error':function (result) {
+            console.log(result);
 
         }
 
     });
+    }
+
+});
+
+
+// 进入页面返现账号密码就执行的方法
+
+$(function () {
+    alert('get cookie')
+      // 获取login_cookie，赋值到登录框
+    var uname=$.cookie('login_user_cookie');
+    var pwd=$.cookie('login_pwd_cookie')
+// 判断是否存在cookie
+    if(!(undefined==uname||null==uname)){
+        // base64解密cookie
+        uname=$.base64.decode(uname);
+        // 赋值到登录框
+        $('#login_username').val(uname);
+
+
+    }
+
+
+     if(!(undefined==pwd||null==pwd)){
+        // base64解密cookie
+        pwd=$.base64.decode(pwd);
+        // 赋值到登录框
+        $('#login_username').val(pwd);
+
+
+    }
+
+
+});
+
+
+
+
+
 
 
