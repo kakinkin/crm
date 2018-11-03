@@ -19,6 +19,8 @@ urlpatterns=[
     path('system/active_accounts/',views.active_accounts,name='active_accounts'),
     #处理登录
     path('system/login_user/',views.login_user,name='login_user'),
-    path('index/',views.index,name='index')
+    path('index/',views.index,name='index'),
+    path('system/update_password/',views.update_password,name=' update_password'),
+    path('system/logout/',views.logout,name='logout')
 
 ]

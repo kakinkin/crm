@@ -260,9 +260,46 @@ def index(request):
         # 如果不存在，重定向登录页面
         return redirect('system:login_register',permanent=True)
 
+
+
+
 #修改密码
 @require_POST
 def update_password(request):
     try:
+        username=request.POST.get('username')
+        old_password=request.POST.get('old_password')
+        new_password=request.POST.get('new_password')
+
+        #使用md5加密
+        old_password_md5=md5(old_password.encode(encoding='utf-8')).hexdigest()
+
+        # 查询用户密码是否正确
+        user=User.objects.get(username=username,password=old_password)
+
+        #使用md5加密
+        new_password_md5=md5(new_password.encode(encoding='utf-8')).hexdigest()
 
 
+        #修改密码
+        user.password=new_password_md5
+        user.save()
+
+        # 修改密码要重新登录，所以要安全退出
+        # 安全退出系统要清除session，所以这里不写
+        return JsonResponse({'code':200,'msg':'修改成功'})
+    except User.DoesNotExist as e:
+        return  JsonResponse({'code':400,'msg':'原密码输入错误'})
+
+    #安全退出
+
+def logout(request):
+        try:
+            #清除session
+            request.session.flush()
+
+            #重定向到登录页面
+            return  redirect('system:login_register')
+        except Exception as e:
+            #重定向至登录页面
+            return  redirect('system:login_register')

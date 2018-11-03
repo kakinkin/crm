@@ -377,7 +377,7 @@ $('#login_btn').on('click',function () {
     alert("登录提交");
     var forgot_pwd=$('#forgot_pwd');
 
-   var forgot_pwd=$('#forgot_pwd').attr('href','http://www.baidu.com/');
+
 
     var flag1=login_username();
     var flag2=login_password();
@@ -405,7 +405,7 @@ $('#login_btn').on('click',function () {
         },
         'dataType':'json',
         'success':function (result) {
-            console.log(result);
+
              // 如果是400 显示错误信息
             if (400 == result.code) {
                 $('#login_span').html(result.msg);
@@ -413,13 +413,12 @@ $('#login_btn').on('click',function () {
             }
             if(200==result.code){
 
+                console.log(result);
                 // 如果用户选择了记住密码
-                if (!(undefined == result.login_cookie || null == result.login_cookie)){
+                if (!(undefined == result.login_user_cookie || null == result.login_user_cookie)){
                      // 设置cookuie，有效时间为15天
-                  $.cookie('login_user_cookie',result.login_user_cookie,
-                      {'expires':5,'path':'/','domain':'www.justin.com'});
-                  $.cookie('login_pwd_cookie',result.login_pwd_cookie,
-                      {'expires':5,'path':'/','domain':'www.justin.com'})
+                  $.cookie('login_user_cookie',result.login_user_cookie, {'expires':5,'path':'/','domain':'www.justin.com'});
+                  $.cookie('login_pwd_cookie',result.login_pwd_cookie, {'expires':5,'path':'/','domain':'www.justin.com'});
                 }
 
                window.location.href='/index/';
@@ -440,7 +439,7 @@ $('#login_btn').on('click',function () {
 // 进入页面返现账号密码就执行的方法
 
 $(function () {
-    alert('get cookie')
+
       // 获取login_cookie，赋值到登录框
     var uname=$.cookie('login_user_cookie');
     var pwd=$.cookie('login_pwd_cookie')
@@ -459,7 +458,7 @@ $(function () {
         // base64解密cookie
         pwd=$.base64.decode(pwd);
         // 赋值到登录框
-        $('#login_username').val(pwd);
+        $('#login_password').val(pwd);
 
 
     }
