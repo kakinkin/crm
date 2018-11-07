@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>忘记密码</title>
+</head>
+<body>
+<form id="forgot_form" style="postion:absoulute;top:40%;left: 40%;border: 1px solid aqua;padding: 10px"
+action="#">
+     {% csrf_token %}
+        <span style="color: red"></span>
+        <p><label>用户名:<input name="username" /></label></p>
+        <p><label>密&nbsp;&nbsp;&nbsp;码: <input name="password"></label></p>
+        <input  style="float: right;width: 100px" id="register_btn" type="submit" value="注&nbsp;&nbsp;&nbsp;册">
+
+
+</form>
+
+</body>
+</html>
